@@ -1,26 +1,45 @@
 :root {
+  /* Base variables */
   --vpc-z: 10000;
   --vpc-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --vpc-font-size: 14px;
+  --vpc-line-height: 1.5;
+  --vpc-radius: 8px;
+  --vpc-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --vpc-arrow-size: 8px;
+  --vpc-transition: all 0.2s ease;
+  
+  /* Default theme */
   --vpc-bg: #ffffff;
   --vpc-fg: #111827;
   --vpc-border: #e5e7eb;
-  --vpc-radius: 8px;
-  --vpc-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --vpc-title-color: #111827;
+  --vpc-message-color: #374151;
+  --vpc-icon-color: #6b7280;
+  
+  /* Button colors */
+  --vpc-btn-confirm-bg: #3b82f6;
+  --vpc-btn-confirm-hover: #2563eb;
+  --vpc-btn-confirm-color: #ffffff;
+  --vpc-btn-cancel-bg: #f3f4f6;
+  --vpc-btn-cancel-hover: #e5e7eb;
+  --vpc-btn-cancel-color: #374151;
+  
+  /* Sizes */
   --vpc-padding: 16px;
   --vpc-gap: 12px;
   --vpc-btn-padding: 8px 16px;
   --vpc-btn-radius: 6px;
   --vpc-btn-font-size: 13px;
   --vpc-btn-font-weight: 500;
-  --vpc-btn-yes-bg: #16a34a;
-  --vpc-btn-yes-hover: #15803d;
-  --vpc-btn-no-bg: #ef4444;
-  --vpc-btn-no-hover: #dc2626;
-  --vpc-btn-color: #ffffff;
-  --vpc-arrow-size: 8px;
+  --vpc-btn-gap: 8px;
+  
+  /* Loading */
+  --vpc-loading-bg: rgba(255, 255, 255, 0.8);
+  --vpc-spinner-color: #3b82f6;
 }
 
+/* Base popover styles */
 .vpc {
   position: absolute;
   top: 0;
@@ -28,6 +47,7 @@
   z-index: var(--vpc-z);
   font-family: var(--vpc-font);
   font-size: var(--vpc-font-size);
+  line-height: var(--vpc-line-height);
   background: var(--vpc-bg);
   color: var(--vpc-fg);
   border: 1px solid var(--vpc-border);
@@ -36,20 +56,120 @@
   padding: var(--vpc-padding);
   min-width: 200px;
   max-width: 300px;
+  position: relative;
+  overflow: hidden;
 }
 
+/* Close button */
+.vpc__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  color: var(--vpc-message-color);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  transition: var(--vpc-transition);
+}
+
+.vpc__close:hover {
+  background: var(--vpc-btn-cancel-bg);
+}
+
+.vpc__close:focus {
+  outline: 2px solid var(--vpc-btn-confirm-bg);
+  outline-offset: 2px;
+}
+
+/* Loading overlay */
+.vpc__loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--vpc-loading-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.vpc__spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid var(--vpc-spinner-color);
+  border-radius: 50%;
+  animation: vpc-spin 1s linear infinite;
+}
+
+@keyframes vpc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Icon */
+.vpc__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--vpc-gap);
+  color: var(--vpc-icon-color);
+  font-size: 24px;
+}
+
+.vpc__icon-default {
+  width: 24px;
+  height: 24px;
+}
+
+/* Title */
+.vpc__title {
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--vpc-title-color);
+  line-height: 1.3;
+}
+
+/* Message */
 .vpc__message {
   margin: 0 0 var(--vpc-gap) 0;
-  font-weight: 500;
-  line-height: 1.4;
+  color: var(--vpc-message-color);
+  line-height: var(--vpc-line-height);
 }
 
+.vpc__message--html {
+  /* Allow HTML content styling */
+}
+
+.vpc__message--html p {
+  margin: 0 0 8px 0;
+}
+
+.vpc__message--html p:last-child {
+  margin-bottom: 0;
+}
+
+/* Actions */
 .vpc__actions {
   display: flex;
-  gap: 8px;
+  gap: var(--vpc-btn-gap);
   justify-content: flex-end;
+  margin-top: var(--vpc-gap);
 }
 
+/* Buttons */
 .vpc__button {
   border: none;
   border-radius: var(--vpc-btn-radius);
@@ -58,30 +178,54 @@
   font-weight: var(--vpc-btn-font-weight);
   font-family: inherit;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  color: var(--vpc-btn-color);
+  transition: var(--vpc-transition);
   min-width: 60px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.vpc__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .vpc__button:focus {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--vpc-btn-confirm-bg);
   outline-offset: 2px;
 }
 
-.vpc__button--yes {
-  background: var(--vpc-btn-yes-bg);
+.vpc__button--confirm {
+  background: var(--vpc-btn-confirm-bg);
+  color: var(--vpc-btn-confirm-color);
 }
 
-.vpc__button--yes:hover {
-  background: var(--vpc-btn-yes-hover);
+.vpc__button--confirm:hover:not(:disabled) {
+  background: var(--vpc-btn-confirm-hover);
 }
 
-.vpc__button--no {
-  background: var(--vpc-btn-no-bg);
+.vpc__button--cancel {
+  background: var(--vpc-btn-cancel-bg);
+  color: var(--vpc-btn-cancel-color);
 }
 
-.vpc__button--no:hover {
-  background: var(--vpc-btn-no-hover);
+.vpc__button--cancel:hover:not(:disabled) {
+  background: var(--vpc-btn-cancel-hover);
+}
+
+.vpc__button-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: vpc-spin 1s linear infinite;
+}
+
+.vpc__button-text {
+  /* Button text wrapper */
 }
 
 .vpc__arrow {
@@ -115,4 +259,240 @@
   left: calc(-1 * var(--vpc-arrow-size) / 2 - 1px);
   border-right: none;
   border-top: none;
+}
+/* Theme 
+variations */
+.vpc--theme-dark {
+  --vpc-bg: #1f2937;
+  --vpc-fg: #f9fafb;
+  --vpc-border: #374151;
+  --vpc-title-color: #f9fafb;
+  --vpc-message-color: #d1d5db;
+  --vpc-icon-color: #9ca3af;
+  --vpc-btn-cancel-bg: #374151;
+  --vpc-btn-cancel-hover: #4b5563;
+  --vpc-btn-cancel-color: #f9fafb;
+  --vpc-loading-bg: rgba(31, 41, 55, 0.8);
+}
+
+.vpc--theme-danger {
+  --vpc-bg: #fef2f2;
+  --vpc-fg: #7f1d1d;
+  --vpc-border: #fecaca;
+  --vpc-title-color: #7f1d1d;
+  --vpc-message-color: #991b1b;
+  --vpc-icon-color: #dc2626;
+  --vpc-btn-confirm-bg: #dc2626;
+  --vpc-btn-confirm-hover: #b91c1c;
+  --vpc-btn-cancel-bg: #f3f4f6;
+  --vpc-btn-cancel-hover: #e5e7eb;
+  --vpc-btn-cancel-color: #374151;
+}
+
+.vpc--theme-success {
+  --vpc-bg: #f0fdf4;
+  --vpc-fg: #14532d;
+  --vpc-border: #bbf7d0;
+  --vpc-title-color: #14532d;
+  --vpc-message-color: #166534;
+  --vpc-icon-color: #16a34a;
+  --vpc-btn-confirm-bg: #16a34a;
+  --vpc-btn-confirm-hover: #15803d;
+  --vpc-btn-cancel-bg: #f3f4f6;
+  --vpc-btn-cancel-hover: #e5e7eb;
+  --vpc-btn-cancel-color: #374151;
+}
+
+.vpc--theme-warning {
+  --vpc-bg: #fffbeb;
+  --vpc-fg: #78350f;
+  --vpc-border: #fed7aa;
+  --vpc-title-color: #78350f;
+  --vpc-message-color: #92400e;
+  --vpc-icon-color: #f59e0b;
+  --vpc-btn-confirm-bg: #f59e0b;
+  --vpc-btn-confirm-hover: #d97706;
+  --vpc-btn-cancel-bg: #f3f4f6;
+  --vpc-btn-cancel-hover: #e5e7eb;
+  --vpc-btn-cancel-color: #374151;
+}
+
+.vpc--theme-minimal {
+  --vpc-bg: #ffffff;
+  --vpc-fg: #000000;
+  --vpc-border: #e5e7eb;
+  --vpc-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --vpc-radius: 4px;
+  --vpc-btn-radius: 4px;
+  --vpc-btn-confirm-bg: #000000;
+  --vpc-btn-confirm-hover: #374151;
+  --vpc-btn-cancel-bg: transparent;
+  --vpc-btn-cancel-hover: #f3f4f6;
+  --vpc-btn-cancel-color: #000000;
+}
+
+/* Size variations */
+.vpc--size-small {
+  --vpc-font-size: 12px;
+  --vpc-padding: 12px;
+  --vpc-gap: 8px;
+  --vpc-btn-padding: 6px 12px;
+  --vpc-btn-font-size: 11px;
+  min-width: 160px;
+  max-width: 240px;
+}
+
+.vpc--size-medium {
+  /* Default size - already defined */
+}
+
+.vpc--size-large {
+  --vpc-font-size: 16px;
+  --vpc-padding: 20px;
+  --vpc-gap: 16px;
+  --vpc-btn-padding: 10px 20px;
+  --vpc-btn-font-size: 14px;
+  min-width: 240px;
+  max-width: 400px;
+}
+
+.vpc--size-large .vpc__title {
+  font-size: 18px;
+}
+
+.vpc--size-large .vpc__icon {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.vpc--size-large .vpc__icon-default {
+  width: 28px;
+  height: 28px;
+}
+
+/* State modifiers */
+.vpc--loading {
+  pointer-events: none;
+}
+
+.vpc--disabled {
+  opacity: 0.7;
+}
+
+.vpc--with-title .vpc__message {
+  margin-top: 0;
+}
+
+.vpc--with-icon .vpc__title,
+.vpc--with-icon .vpc__message {
+  text-align: center;
+}
+
+.vpc--with-close {
+  padding-top: calc(var(--vpc-padding) + 16px);
+}
+
+/* Animation transitions */
+.vpc-fade-enter-active,
+.vpc-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.vpc-fade-enter-from,
+.vpc-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.vpc-scale-enter-active,
+.vpc-scale-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.vpc-scale-enter-from,
+.vpc-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.vpc-slide-enter-active,
+.vpc-slide-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.vpc-slide-enter-from,
+.vpc-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.vpc-none-enter-active,
+.vpc-none-leave-active {
+  transition: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .vpc {
+    max-width: calc(100vw - 32px);
+    margin: 0 16px;
+  }
+  
+  .vpc--size-large {
+    --vpc-padding: 16px;
+    --vpc-font-size: 14px;
+  }
+  
+  .vpc__actions {
+    flex-direction: column-reverse;
+  }
+  
+  .vpc__button {
+    width: 100%;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .vpc {
+    border-width: 2px;
+  }
+  
+  .vpc__button {
+    border: 2px solid transparent;
+  }
+  
+  .vpc__button--confirm {
+    border-color: var(--vpc-btn-confirm-bg);
+  }
+  
+  .vpc__button--cancel {
+    border-color: var(--vpc-btn-cancel-color);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .vpc-fade-enter-active,
+  .vpc-fade-leave-active,
+  .vpc-scale-enter-active,
+  .vpc-scale-leave-active,
+  .vpc-slide-enter-active,
+  .vpc-slide-leave-active {
+    transition: opacity 0.1s ease;
+  }
+  
+  .vpc-fade-enter-from,
+  .vpc-fade-leave-to,
+  .vpc-scale-enter-from,
+  .vpc-scale-leave-to,
+  .vpc-slide-enter-from,
+  .vpc-slide-leave-to {
+    transform: none;
+  }
+  
+  .vpc__spinner,
+  .vpc__button-spinner {
+    animation: none;
+  }
 }

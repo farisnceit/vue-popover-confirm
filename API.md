@@ -1,541 +1,302 @@
-# API Reference
-
-Complete API documentation for vue-popover-confirm.
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Plugin Registration](#plugin-registration)
-- [Directive Usage](#directive-usage)
-- [Programmatic API](#programmatic-api)
-- [TypeScript Types](#typescript-types)
-- [CSS Variables](#css-variables)
-- [Component API](#component-api)
-- [Events](#events)
-- [Accessibility](#accessibility)
+# API Documentation
 
 ## Installation
-
-### NPM Installation
 
 ```bash
 npm install vue-popover-confirm
 ```
 
-```typescript
-import { createApp } from 'vue';
-import VuePopoverConfirm from 'vue-popover-confirm';
-import 'vue-popover-confirm/style.css';
-
-const app = createApp(App);
-app.use(VuePopoverConfirm);
-```
-
-### CDN Installation
-
-```html
-<link rel="stylesheet" href="https://unpkg.com/vue-popover-confirm/dist/style.css">
-<script src="https://unpkg.com/vue-popover-confirm/dist/vue-popover-confirm.iife.js"></script>
-```
-
-```javascript
-const { createApp } = Vue;
-const app = createApp(App);
-app.use(VuePopoverConfirm.default);
-```
-
-## Plugin Registration
-
-### `VuePopoverConfirm.install(app: App): void`
-
-Registers the plugin with a Vue application instance.
-
-**What it registers:**
-- `v-confirm` directive globally
-- `VuePopoverConfirmRoot` component globally
-- `$confirm` API on component instances
-- `$confirm` injection key for Composition API
+## Basic Usage
 
 ```typescript
-import VuePopoverConfirm from 'vue-popover-confirm';
+import { createApp } from 'vue'
+import VuePopoverConfirm from 'vue-popover-confirm'
+import 'vue-popover-confirm/style.css'
 
-app.use(VuePopoverConfirm);
+const app = createApp(App)
+
+// Install with global configuration (optional)
+app.use(VuePopoverConfirm, {
+  theme: 'default',
+  animation: 'fade',
+  closeOnClickOutside: true,
+  closeOnEscape: true,
+  confirmText: 'Confirm',
+  cancelText: 'Cancel'
+})
 ```
 
 ## Directive Usage
 
-### `v-confirm`
-
-The main directive for attaching confirmation popovers to elements.
-
-#### String Syntax
-
 ```vue
 <template>
-  <button v-confirm="'Are you sure?'">
+  <!-- Simple usage -->
+  <button v-confirm="'Are you sure?'">Delete</button>
+  
+  <!-- Advanced usage -->
+  <button v-confirm="{ 
+    title: 'Delete Item',
+    message: 'This action cannot be undone!',
+    theme: 'danger',
+    size: 'large',
+    animation: 'scale',
+    icon: '⚠️',
+    confirmText: 'Delete',
+    cancelText: 'Cancel',
+    onConfirm: handleDelete,
+    onCancel: handleCancel
+  }">
     Delete Item
   </button>
 </template>
 ```
 
-#### Object Syntax
+## Composable API
 
-```vue
-<template>
-  <button v-confirm="confirmOptions">
-    Delete Item
-  </button>
-</template>
+```typescript
+import { useConfirm, useConfirmDialog } from 'vue-popover-confirm'
 
-<script setup>
-const confirmOptions = {
-  message: 'Are you sure you want to delete this item?',
-  confirmText: 'Delete',
-  cancelText: 'Cancel',
-  onConfirm: async () => {
-    await deleteItem();
-  },
-  onCancel: () => {
-    console.log('Cancelled');
-  }
-};
-</script>
+// Basic composable
+const { ask, danger, success, warning, show, hide } = useConfirm()
+
+// Ask for confirmation
+const confirmed = await ask('Continue with this action?')
+
+// Themed confirmations
+const confirmed = await danger('This will delete all data!')
+const confirmed = await success('Operation completed! Continue?')
+const confirmed = await warning('This may have side effects.')
+
+// Advanced dialog composable
+const dialog = useConfirmDialog()
+
+const result = await dialog.danger({
+  title: 'Confirm Deletion',
+  message: 'This will permanently delete the selected items.',
+  size: 'large',
+  animation: 'scale'
+})
 ```
 
-#### Dynamic Values
+## Programmatic Usage
 
-```vue
-<template>
-  <button 
-    v-for="item in items" 
-    :key="item.id"
-    v-confirm="{
-      message: `Delete ${item.name}?`,
-      onConfirm: () => deleteItem(item.id)
-    }"
-  >
-    Delete {{ item.name }}
-  </button>
-</template>
+```typescript
+import { confirmManager } from 'vue-popover-confirm'
+
+// Show confirmation and get promise result
+const result = await confirmManager.show({
+  title: 'Confirm Action',
+  message: 'Are you sure you want to proceed?',
+  theme: 'warning'
+}, targetElement)
+
+if (result.confirmed) {
+  console.log('User confirmed')
+} else if (result.cancelled) {
+  console.log('User cancelled')
+}
+
+// Convenience methods
+const confirmed = await confirmManager.ask('Continue?')
+const confirmed = await confirmManager.danger('Delete all?')
+const confirmed = await confirmManager.success('Save changes?')
+const confirmed = await confirmManager.warning('Proceed anyway?')
+
+// State management
+confirmManager.setLoading(true)
+confirmManager.updateMessage('Processing...')
+confirmManager.hide()
 ```
 
-## Programmatic API
+## Configuration Options
 
-### Composition API
+### ConfirmOptions
 
-```vue
-<script setup>
-import { inject } from 'vue';
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `message` | `string` | - | **Required.** The confirmation message |
+| `title` | `string` | - | Optional title for the popover |
+| `confirmText` | `string` | `'Confirm'` | Text for the confirm button |
+| `cancelText` | `string` | `'Cancel'` | Text for the cancel button |
+| `theme` | `ConfirmTheme` | `'default'` | Visual theme |
+| `size` | `ConfirmSize` | `'medium'` | Popover size |
+| `animation` | `ConfirmAnimation` | `'fade'` | Entrance animation |
+| `placement` | `Placement` | `'top-start'` | Popover placement |
+| `offset` | `number` | `12` | Distance from target element |
+| `closeOnClickOutside` | `boolean` | `true` | Close when clicking outside |
+| `closeOnEscape` | `boolean` | `true` | Close when pressing Escape |
+| `showCloseButton` | `boolean` | `false` | Show close button |
+| `persistent` | `boolean` | `false` | Prevent closing during loading |
+| `loading` | `boolean` | `false` | Show loading state |
+| `disabled` | `boolean` | `false` | Disable buttons |
+| `autoFocus` | `'confirm' \| 'cancel' \| 'none'` | `'confirm'` | Which button to focus |
+| `customClass` | `string` | `''` | Additional CSS class |
+| `zIndex` | `number` | `10000` | CSS z-index |
+| `maxWidth` | `number` | `300` | Maximum width in pixels |
+| `minWidth` | `number` | `200` | Minimum width in pixels |
+| `icon` | `string \| boolean` | `false` | Icon to display |
+| `html` | `boolean` | `false` | Allow HTML in message |
+| `timeout` | `number` | `0` | Auto-close timeout in ms |
+| `onConfirm` | `() => void \| Promise<void>` | - | Confirm callback |
+| `onCancel` | `() => void \| Promise<void>` | - | Cancel callback |
+| `onShow` | `() => void` | - | Show callback |
+| `onHide` | `() => void` | - | Hide callback |
 
-const $confirm = inject('$confirm');
+### Theme Options
 
-const showConfirmation = (event) => {
-  $confirm.show({
-    message: 'Custom confirmation',
-    confirmText: 'Yes',
-    cancelText: 'No',
-    onConfirm: () => console.log('Confirmed!')
-  }, event.target);
-};
-</script>
+- `'default'` - Standard light theme
+- `'dark'` - Dark theme
+- `'danger'` - Red theme for destructive actions
+- `'success'` - Green theme for positive actions
+- `'warning'` - Orange theme for cautionary actions
+- `'minimal'` - Clean minimal theme
+
+### Size Options
+
+- `'small'` - Compact size for tight spaces
+- `'medium'` - Default balanced size
+- `'large'` - Spacious size for important confirmations
+
+### Animation Options
+
+- `'fade'` - Fade in/out with slight movement
+- `'scale'` - Scale up/down animation
+- `'slide'` - Slide in from top
+- `'none'` - No animation
+
+## Global Configuration
+
+```typescript
+import { confirmManager } from 'vue-popover-confirm'
+
+// Set global defaults
+confirmManager.setGlobalConfig({
+  theme: 'dark',
+  animation: 'scale',
+  closeOnClickOutside: true,
+  confirmText: 'OK',
+  cancelText: 'Cancel'
+})
+
+// Get current global config
+const config = confirmManager.getGlobalConfig()
 ```
 
-### Options API
+## Advanced Usage
 
-```vue
-<script>
-export default {
-  methods: {
-    showConfirmation(event) {
-      this.$confirm.show({
-        message: 'Custom confirmation',
-        onConfirm: () => console.log('Confirmed!')
-      }, event.target);
+### Batch Operations
+
+```typescript
+import { useConfirmBatch } from 'vue-popover-confirm'
+
+const { confirmBatch, confirmAll } = useConfirmBatch()
+
+// Confirm each item individually
+const { confirmed, cancelled } = await confirmBatch(
+  items,
+  (item, index) => `Delete ${item.name}?`,
+  { theme: 'danger' }
+)
+
+// Confirm all items at once
+const allConfirmed = await confirmAll(
+  items,
+  'Delete all selected items?',
+  { theme: 'danger' }
+)
+```
+
+### Custom Positioning
+
+```typescript
+// Use specific placement
+v-confirm="{
+  message: 'Confirm action',
+  placement: 'bottom-end',
+  offset: 20
+}"
+
+// Available placements: 'top', 'top-start', 'top-end',
+// 'bottom', 'bottom-start', 'bottom-end',
+// 'left', 'left-start', 'left-end',
+// 'right', 'right-start', 'right-end'
+```
+
+### Loading States
+
+```typescript
+const { setLoading, updateMessage } = useConfirm()
+
+const handleAsyncAction = async () => {
+  const result = await show({
+    message: 'Process data?',
+    onConfirm: async () => {
+      setLoading(true)
+      updateMessage('Processing...')
+      await processData()
+      updateMessage('Almost done...')
+      await finalizeProcess()
     }
-  }
+  }, targetElement)
 }
-</script>
 ```
 
-### API Methods
-
-#### `$confirm.show(options: ConfirmOptions, targetElement: HTMLElement): void`
-
-Shows a confirmation popover anchored to the target element.
-
-**Parameters:**
-- `options`: Configuration object (see ConfirmOptions)
-- `targetElement`: DOM element to anchor the popover to
-
-#### `$confirm.hide(): void`
-
-Hides the currently visible confirmation popover.
-
-## TypeScript Types
-
-### `ConfirmOptions`
-
-Configuration object for confirmation popovers.
+### HTML Content
 
 ```typescript
-interface ConfirmOptions {
-  /** The confirmation message to display */
-  message: string;
-  
-  /** Text for the confirm button (default: 'Confirm') */
-  confirmText?: string;
-  
-  /** Text for the cancel button (default: 'Cancel') */
-  cancelText?: string;
-  
-  /** Callback executed when confirmed */
-  onConfirm?: () => void | Promise<void>;
-  
-  /** Callback executed when cancelled */
-  onCancel?: () => void | Promise<void>;
-}
+v-confirm="{
+  message: '<strong>Warning:</strong> This will <em>permanently</em> delete the item.',
+  html: true,
+  theme: 'danger'
+}"
 ```
 
-### `ConfirmDirectiveValue`
+## TypeScript Support
 
-Union type for directive values.
+The plugin is fully typed with TypeScript. Import types as needed:
 
 ```typescript
-type ConfirmDirectiveValue = string | ConfirmOptions;
+import type { 
+  ConfirmOptions,
+  ConfirmResult,
+  ConfirmTheme,
+  ConfirmSize,
+  ConfirmAnimation,
+  GlobalConfirmConfig
+} from 'vue-popover-confirm'
 ```
-
-### `ConfirmState`
-
-Internal state interface (for advanced usage).
-
-```typescript
-interface ConfirmState {
-  isVisible: boolean;
-  message: string;
-  confirmText: string;
-  cancelText: string;
-  onConfirm: () => void | Promise<void>;
-  onCancel: () => void | Promise<void>;
-  targetElement: HTMLElement | null;
-  returnFocusElement: HTMLElement | null;
-}
-```
-
-### `ConfirmAPI`
-
-Programmatic API interface.
-
-```typescript
-interface ConfirmAPI {
-  show(options: ConfirmOptions, targetElement: HTMLElement): void;
-  hide(): void;
-}
-```
-
-## CSS Variables
-
-Complete list of CSS variables for customization.
-
-### Layout & Positioning
-
-```css
-:root {
-  --vpc-z: 10000;                    /* Z-index for popover */
-  --vpc-padding: 16px;               /* Internal padding */
-  --vpc-gap: 12px;                   /* Gap between elements */
-  --vpc-arrow-size: 8px;             /* Size of positioning arrow */
-}
-```
-
-### Typography
-
-```css
-:root {
-  --vpc-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --vpc-font-size: 14px;             /* Base font size */
-  --vpc-btn-font-size: 13px;         /* Button font size */
-  --vpc-btn-font-weight: 500;        /* Button font weight */
-}
-```
-
-### Colors
-
-```css
-:root {
-  --vpc-bg: #ffffff;                 /* Background color */
-  --vpc-fg: #111827;                 /* Text color */
-  --vpc-border: #e5e7eb;             /* Border color */
-  --vpc-btn-color: #ffffff;          /* Button text color */
-  --vpc-btn-yes-bg: #16a34a;         /* Confirm button background */
-  --vpc-btn-yes-hover: #15803d;      /* Confirm button hover */
-  --vpc-btn-no-bg: #ef4444;          /* Cancel button background */
-  --vpc-btn-no-hover: #dc2626;       /* Cancel button hover */
-}
-```
-
-### Visual Effects
-
-```css
-:root {
-  --vpc-radius: 8px;                 /* Border radius */
-  --vpc-btn-radius: 6px;             /* Button border radius */
-  --vpc-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); /* Box shadow */
-  --vpc-btn-padding: 8px 16px;       /* Button padding */
-}
-```
-
-### Theme Examples
-
-#### Dark Theme
-
-```css
-[data-theme="dark"] {
-  --vpc-bg: #1f2937;
-  --vpc-fg: #f9fafb;
-  --vpc-border: #374151;
-  --vpc-btn-yes-bg: #059669;
-  --vpc-btn-no-bg: #dc2626;
-}
-```
-
-#### Minimal Theme
-
-```css
-.minimal-theme {
-  --vpc-radius: 4px;
-  --vpc-btn-radius: 4px;
-  --vpc-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --vpc-padding: 12px;
-  --vpc-gap: 8px;
-}
-```
-
-## Component API
-
-### `VuePopoverConfirmRoot`
-
-The root component that renders confirmation popovers.
-
-#### Usage
-
-```vue
-<template>
-  <div id="app">
-    <!-- Your app content -->
-    
-    <!-- Required: Include the root component -->
-    <VuePopoverConfirmRoot />
-  </div>
-</template>
-```
-
-#### Props
-
-The component doesn't accept props - it's controlled entirely through the global state manager.
-
-#### Features
-
-- **Teleport Rendering**: Renders into `document.body` for proper z-index handling
-- **Smart Positioning**: Uses Floating UI for collision-aware placement
-- **Focus Management**: Traps focus and restores it when closed
-- **Keyboard Navigation**: Handles Tab, Shift+Tab, and Escape keys
-- **Click Outside**: Closes when clicking outside the popover
-
-## Events
-
-### Callback Events
-
-Callbacks are executed as part of the confirmation flow:
-
-```typescript
-const options = {
-  message: 'Delete item?',
-  onConfirm: async () => {
-    // Called when user clicks confirm
-    // Can be async - popover waits for completion
-    await deleteItem();
-  },
-  onCancel: () => {
-    // Called when user clicks cancel or presses Escape
-    console.log('User cancelled');
-  }
-};
-```
-
-### Event Handling
-
-The plugin handles these DOM events internally:
-
-- **Click**: On directive-bound elements to show popover
-- **Click Outside**: To close popover when clicking elsewhere
-- **Keydown**: For keyboard navigation (Tab, Shift+Tab, Escape)
-- **Resize/Scroll**: To reposition popover when viewport changes
 
 ## Accessibility
 
-### ARIA Attributes
+The plugin includes comprehensive accessibility features:
 
-The popover includes proper ARIA attributes:
-
-```html
-<div
-  class="vpc"
-  role="dialog"
-  aria-modal="true"
-  aria-label="Confirmation message text"
->
-  <!-- Popover content -->
-</div>
-```
-
-### Keyboard Navigation
-
-- **Tab**: Move focus to next button
-- **Shift+Tab**: Move focus to previous button
-- **Escape**: Close popover and return focus
-- **Enter/Space**: Activate focused button
-
-### Focus Management
-
-1. **Focus Trap**: Focus is trapped within the popover
-2. **Initial Focus**: Confirm button receives focus when opened
-3. **Focus Restoration**: Focus returns to trigger element when closed
-4. **Focus Indicators**: Clear visual focus indicators on all interactive elements
-
-### Screen Reader Support
-
-- Popover is announced as a dialog
-- Message content is read automatically
-- Button labels are clear and descriptive
-- State changes are communicated appropriately
-
-### Color Contrast
-
-Default theme meets WCAG 2.1 AA standards:
-- Text contrast ratio: 4.5:1 minimum
-- Button contrast ratio: 3:1 minimum
-- Focus indicators: High contrast borders
+- ARIA labels and roles
+- Keyboard navigation (Tab, Enter, Escape)
+- Focus management and trapping
+- Screen reader support
+- High contrast mode support
+- Reduced motion support
 
 ## Browser Support
 
-### Supported Browsers
+- Vue 3.0+
+- Modern browsers (Chrome, Firefox, Safari, Edge)
+- IE11+ (with polyfills)
 
-- **Chrome**: 60+ (ES2015+ support)
-- **Firefox**: 55+ (ES2015+ support)
-- **Safari**: 12+ (ES2015+ support)
-- **Edge**: 79+ (Chromium-based)
+## CSS Customization
 
-### Mobile Support
+Override CSS variables for custom styling:
 
-- **iOS Safari**: 12+
-- **Android Chrome**: 60+
-- **Samsung Internet**: 8+
-
-### Not Supported
-
-- **Internet Explorer**: Any version (uses modern JavaScript features)
-- **Legacy Edge**: Pre-Chromium versions
-
-## Performance Considerations
-
-### Memory Usage
-
-- Singleton state manager minimizes memory footprint
-- Event listeners are properly cleaned up
-- No memory leaks from directive lifecycle
-
-### Rendering Performance
-
-- Teleport rendering prevents layout thrashing
-- CSS transforms used for positioning (GPU accelerated)
-- Minimal DOM manipulation during positioning updates
-
-### Bundle Size
-
-- **ESM**: ~8KB minified + gzipped
-- **CSS**: ~2KB minified + gzipped
-- **Dependencies**: Only @floating-ui/dom (~15KB)
-
-### Optimization Tips
-
-1. **CSS Variables**: Use CSS variables for theme switching instead of class toggling
-2. **Event Delegation**: Plugin uses efficient event handling patterns
-3. **Positioning Cache**: Floating UI caches calculations when possible
-4. **Tree Shaking**: ESM build supports tree shaking for optimal bundle size
-
-## Migration Guide
-
-### From Other Confirmation Libraries
-
-Common patterns when migrating from other libraries:
-
-#### From `vue-confirm-dialog`
-
-```typescript
-// Before
-this.$confirm('Delete item?').then(() => {
-  deleteItem();
-});
-
-// After
-<button v-confirm="{
-  message: 'Delete item?',
-  onConfirm: () => deleteItem()
-}">
-  Delete
-</button>
+```css
+:root {
+  --vpc-bg: #ffffff;
+  --vpc-fg: #111827;
+  --vpc-border: #e5e7eb;
+  --vpc-radius: 8px;
+  --vpc-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --vpc-btn-confirm-bg: #3b82f6;
+  --vpc-btn-confirm-hover: #2563eb;
+  --vpc-btn-cancel-bg: #f3f4f6;
+  --vpc-btn-cancel-hover: #e5e7eb;
+}
 ```
-
-#### From `sweetalert2`
-
-```typescript
-// Before
-Swal.fire({
-  title: 'Are you sure?',
-  text: 'Delete this item?',
-  showCancelButton: true
-}).then((result) => {
-  if (result.isConfirmed) {
-    deleteItem();
-  }
-});
-
-// After
-<button v-confirm="{
-  message: 'Delete this item?',
-  onConfirm: () => deleteItem()
-}">
-  Delete
-</button>
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Popover not showing**
-   - Ensure `VuePopoverConfirmRoot` is included in your template
-   - Check that the plugin is properly registered
-
-2. **Positioning issues**
-   - Verify target element has proper positioning context
-   - Check for CSS conflicts with z-index
-
-3. **Focus not restoring**
-   - Ensure trigger element remains in DOM after confirmation
-   - Check for JavaScript errors preventing cleanup
-
-4. **Styles not applied**
-   - Import the CSS file: `import 'vue-popover-confirm/style.css'`
-   - Check for CSS specificity conflicts
-
-### Debug Mode
-
-Enable debug logging:
-
-```javascript
-// In development
-window.__VPC_DEBUG__ = true;
-```
-
-This logs state changes and positioning calculations to the console.
