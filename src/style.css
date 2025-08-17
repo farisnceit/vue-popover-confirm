@@ -1,0 +1,118 @@
+:root {
+  --vpc-z: 10000;
+  --vpc-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --vpc-font-size: 14px;
+  --vpc-bg: #ffffff;
+  --vpc-fg: #111827;
+  --vpc-border: #e5e7eb;
+  --vpc-radius: 8px;
+  --vpc-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --vpc-padding: 16px;
+  --vpc-gap: 12px;
+  --vpc-btn-padding: 8px 16px;
+  --vpc-btn-radius: 6px;
+  --vpc-btn-font-size: 13px;
+  --vpc-btn-font-weight: 500;
+  --vpc-btn-yes-bg: #16a34a;
+  --vpc-btn-yes-hover: #15803d;
+  --vpc-btn-no-bg: #ef4444;
+  --vpc-btn-no-hover: #dc2626;
+  --vpc-btn-color: #ffffff;
+  --vpc-arrow-size: 8px;
+}
+
+.vpc {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: var(--vpc-z);
+  font-family: var(--vpc-font);
+  font-size: var(--vpc-font-size);
+  background: var(--vpc-bg);
+  color: var(--vpc-fg);
+  border: 1px solid var(--vpc-border);
+  border-radius: var(--vpc-radius);
+  box-shadow: var(--vpc-shadow);
+  padding: var(--vpc-padding);
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.vpc__message {
+  margin: 0 0 var(--vpc-gap) 0;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.vpc__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.vpc__button {
+  border: none;
+  border-radius: var(--vpc-btn-radius);
+  padding: var(--vpc-btn-padding);
+  font-size: var(--vpc-btn-font-size);
+  font-weight: var(--vpc-btn-font-weight);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: var(--vpc-btn-color);
+  min-width: 60px;
+}
+
+.vpc__button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.vpc__button--yes {
+  background: var(--vpc-btn-yes-bg);
+}
+
+.vpc__button--yes:hover {
+  background: var(--vpc-btn-yes-hover);
+}
+
+.vpc__button--no {
+  background: var(--vpc-btn-no-bg);
+}
+
+.vpc__button--no:hover {
+  background: var(--vpc-btn-no-hover);
+}
+
+.vpc__arrow {
+  position: absolute;
+  width: var(--vpc-arrow-size);
+  height: var(--vpc-arrow-size);
+  background: var(--vpc-bg);
+  border: 1px solid var(--vpc-border);
+  transform: rotate(45deg);
+}
+
+.vpc__arrow--top {
+  bottom: calc(-1 * var(--vpc-arrow-size) / 2 - 1px);
+  border-top: none;
+  border-left: none;
+}
+
+.vpc__arrow--bottom {
+  top: calc(-1 * var(--vpc-arrow-size) / 2 - 1px);
+  border-bottom: none;
+  border-right: none;
+}
+
+.vpc__arrow--left {
+  right: calc(-1 * var(--vpc-arrow-size) / 2 - 1px);
+  border-left: none;
+  border-bottom: none;
+}
+
+.vpc__arrow--right {
+  left: calc(-1 * var(--vpc-arrow-size) / 2 - 1px);
+  border-right: none;
+  border-top: none;
+}
