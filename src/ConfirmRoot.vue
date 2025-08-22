@@ -52,8 +52,6 @@ const confirmButtonRef = ref<HTMLElement>();
 const cancelButtonRef = ref<HTMLElement>();
 const arrowClass = ref('vpc__arrow--top');
 
-let cleanup: (() => void) | null = null;
-
 const updatePosition = async () => {
   if (!popoverRef.value || !arrowRef.value || !confirmManager.state.targetElement) {
     return;
@@ -168,8 +166,11 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  if (cleanup) {
-    cleanup();
+  // Remove event listeners if component is unmounted while visible
+  if (confirmManager.state.isVisible) {
+    document.removeEventListener('click', handleClickOutside, true);
+    window.removeEventListener('resize', updatePosition);
+    window.removeEventListener('scroll', updatePosition, true);
   }
 });
 </script>

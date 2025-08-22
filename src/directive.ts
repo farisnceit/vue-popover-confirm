@@ -23,7 +23,7 @@ export const vConfirm: Directive<HTMLElement, ConfirmDirectiveValue> = {
     (el as any)._vConfirmHandler = handleClick;
   },
 
-  updated(el, binding) {
+  updated(_el, _binding) {
     // Handler remains the same, options are parsed when needed
   },
 
