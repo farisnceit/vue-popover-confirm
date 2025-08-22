@@ -3,6 +3,7 @@ import { vConfirm } from './directive';
 import { confirmManager } from './manager';
 import ConfirmRoot from './ConfirmRoot.vue';
 import type { ConfirmOptions } from './types';
+import './style.css';
 
 export interface VuePopoverConfirmPlugin {
   install(app: App): void;

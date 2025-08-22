@@ -23,7 +23,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "build:lib": "vue-tsc && vite build --mode lib",
+    "build:lib": "vite build --mode lib && vue-tsc --project tsconfig.lib.json",
     "preview": "vite preview"
   },
   "keywords": [
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.6.1",
-    "vue": "^3.4.38"
+    "vue": "^3.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.3",
